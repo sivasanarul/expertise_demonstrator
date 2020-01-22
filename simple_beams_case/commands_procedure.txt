@@ -1,0 +1,59 @@
+
+C:\Users\d046309\Politecnico\DemoIT4I\simple_beams_case
+
+1. add path in Environment Variables --> Path . Copy anaconda3\Scripts
+2. cmd in the same folder - type command conda or conda list
+3. make different environments using conda - conda create -n demo python=3.7  %% demo is the name of the variable
+4. type - activate demo
+5. type - quit to leave the python env
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+To install CONTPY. 
+1. create a folder named CONTPY
+2. move to that folder by --> cd CONTPY
+3. create a git repo --> git init
+4. link the git repo --> git remote add github https://github.com/jenovencio/contpy.git
+5. Fetch the data from the branch to the local folder --> git fetch github master
+6. Check out --> git checkout master
+7. Install the library by --> python setup.py develop 
+8. Test if the library is working --> python
+9. --> import contpy (if no warning OK)
+10. cd contpy\test
+11. type --> python name-of-the-script
+12.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+To install PYFETI. 
+1. create a folder named PYFETI --> mkdir PYFETI
+2. move to that folder by --> cd PYFETI
+3. create a git repo --> git init
+4. link the git repo --> git remote add github https://github.com/jenovencio/PYFETI.git
+5. Fetch the data from the branch to the local folder --> git fetch github domaincreator
+6. Check out --> git checkout domaincreator
+7. Install the library by --> python setup.py develop 
+7a. Go to Microsoft web and install MSMPI manually
+7b. If it doesn't work, close and reopen the terminal. 
+7c. Install the MPI for Python MANUALLY --> conda install -c intel mpi4py
+7d. If it doesn't work, close and reopen the terminal. 
+7e. conda install pandas=0.25.1 (just to make it compatible, NOT NECESSARYdir
+)
+8. Test if the library is working --> python
+9. type --> import pyfeti (if no warning OK)
+10. type --> cd pyfeti\test
+11. type --> python name-of-the-script
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+To install AMFE
+1. create a folder named AMFE --> mkdir AMFE
+2. move to that folder by --> cd AMFE
+3. create a git repo --> git init
+4. link the git repo --> git remote add github https://github.com/jenovencio/AMfe-FETI.git
+5. Fetch the data from the branch to the local folder --> git fetch github contact
+6. Check out --> git checkout contact
+6a. OBSOLETE! Install cygwin with gfortran and also visual studio :@
+7. Install the library by --> python setup.py no_fortran develop 
+8. Test if the library is working --> python
+9. type --> import amfe (if no warning OK)
+9a. in case things go south --> conda install h5py
+
