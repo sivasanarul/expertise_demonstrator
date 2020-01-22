@@ -112,10 +112,10 @@ component_dict = {1:{'mesh' : m1,
 
 
 #ro=1.0E7
-ro=4.0E4
+ro=1.E6
 N0=0.0E0
-k= 1.0E0
-mu= 0.0
+k= 1.0E4
+mu= 0.3
 contact_dict = {'12' : {'contact' : contact12, 
                         'contact_pair_id' : (1,2),
                         'elem_type' : 'jenkins' , 
@@ -334,8 +334,8 @@ from contpy import optimize as copt, frequency, operators
 
 nH = 3
 omega = 1.0
-time_points = nH*25
-rate = 1.0E2
+time_points = nH*50
+rate = 1.0E3
 
 ndofs = K_global.shape[0]
 Q = frequency.assemble_hbm_operator(ndofs,number_of_harm=nH ,n_points=time_points) # bases of truncaded Fourier
@@ -464,12 +464,12 @@ class LM_CG_Krylov(copt.LinearSolver):
 # In[ ]:
 
 # solving the system without any reduction
-#sol2 = copt.LevenbergMarquardt(Residual_and_Jac_in_real_block,0.0*u__inital_real,method=None,jac=True,maxiter=200)
-sol2 = copt.Newton(Residual_and_Jac_in_real_block,0.0*u__inital_real,method=None,jac=True,maxiter=200)
+sol2 = copt.LevenbergMarquardt(Residual_and_Jac_in_real_block,0.0*u__inital_real,method=None,jac=True,maxiter=2)
+#sol2 = copt.Newton(Residual_and_Jac_in_real_block,0.0*u__inital_real,method=None,jac=True,maxiter=2)
 u_sol =   copt.real_array_to_complex(sol2.x)
 u_sol_time = Q.dot(u_sol)
 
-print('no. of iterations for sol2 %i' %sol2.nfev)
+#print('no. of iterations for sol2 %i' %sol2.nfev)
 
 # In[ ]:
 
@@ -577,7 +577,7 @@ plt.show()
 
 
 u_sol_mode_real = copt.complex_array_to_real(u_sol_mode)
-sol2 = copt.Newton(Residual_and_Jac_in_real_block, u_sol_mode_real,method=None,jac=True,maxiter=200)
+sol2 = copt.LevenbergMarquardt(Residual_and_Jac_in_real_block, u_sol_mode_real,method=None,jac=True,maxiter=200)
 u_sol =   copt.real_array_to_complex(sol2.x)
 u_sol_time__ = Q.dot(u_sol)
 

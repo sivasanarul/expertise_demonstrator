@@ -112,9 +112,9 @@ component_dict = {1:{'mesh' : m1,
 
 
 #ro=1.0E7
-ro=4.0E4
-N0=0.0E0
-k= 1.0E0
+ro=0*1.0E2
+N0=1E5
+k= 1.0E4
 mu= 0.3
 contact_dict = {'12' : {'contact' : contact12, 
                         'contact_pair_id' : (1,2),
@@ -332,7 +332,7 @@ for contact_key,contact_item in contact_dict.items():
 
 from contpy import optimize as copt, frequency, operators
 
-nH = 3
+nH = 2
 omega = 1.0
 time_points = nH*25
 rate = 5.0E2
