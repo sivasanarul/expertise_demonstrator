@@ -21,7 +21,7 @@ from amfe.contact import jenkins, Nonlinear_force_assembler, Create_node2node_fo
 import time
 import scipy.sparse as sparse
 import scipy
-import sparse as sp
+import scipy.sparse as sp
 from scipy.optimize import minimize, root
 from contpy import optimize as copt, frequency
 import numdifftools as nd
