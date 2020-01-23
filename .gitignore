@@ -1,2 +1,4 @@
 .vscode/
 **.msh
+**.log
+*.log
