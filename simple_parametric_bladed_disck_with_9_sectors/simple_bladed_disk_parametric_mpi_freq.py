@@ -244,7 +244,7 @@ if __name__ == "__main__":
     #save_mesh_file = 'mesh_simple_parametric_bladed_disk_v1.pkl' 
 
     # HBM parameters 
-    nH = 1 # number of harmonics
+    nH = 2 # number of harmonics
     omega = omega0 + mpi_case*delta_omega # frequency in rad s
     time_points = nH*25
 
