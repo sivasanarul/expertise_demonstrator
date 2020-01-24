@@ -180,8 +180,16 @@ def preprocessing(variables_filename = 'preprocessing_variables.pkl'):
 
     K_global,M_global,C_global,f_global =  list2global(K_list, M_list, f_list,alpha = 1.0E-3, beta = 1.0E-7)
 
-    utils.save_object(locals(),variables_filename)
-    return locals()
+
+    var_dict = {}
+    var_list = ['K_global','M_global','C_global','f_global','Fnl_obj_list']
+    for var_name in var_list:
+        var_dict[var_name] = eval(var_name)
+
+    
+    utils.save_object(var_dict,variables_filename)
+
+    return var_dict
 
 
 def main():
