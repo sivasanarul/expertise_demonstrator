@@ -1,0 +1,344 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%notebook matplotlib\n",
+    "import numpy as np\n",
+    "import matplotlib.pyplot as plt\n",
+    "\n",
+    "class jenkins():\n",
+    "    \n",
+    "    def __init__(self, k=2, alpha=0, mu=0.1):\n",
+    "        \n",
+    "        self.k = k\n",
+    "        self.alpha = alpha\n",
+    "        self.mu = mu\n",
+    "        self.un = 0\n",
+    "        \n",
+    "    def compute(self,delta_gap,N):\n",
+    "        \n",
+    "        Ft_trial = self.alpha - self.k*delta_gap \n",
+    "        norm_Ft_trial = np.norm(Ft_trial)\n",
+    "        d = Ft_trial/norm_Ft_trial\n",
+    "        Phi = norm_Ft_trial - self.mu*N\n",
+    "        if Phi<=0:\n",
+    "            self.alpha = Ft_trial\n",
+    "            return self.alpha\n",
+    "        \n",
+    "        else:\n",
+    "            self.alpha = self.mu*N*d\n",
+    "            return self.alpha"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%notebook matplotlib\n",
+    "import numpy as np\n",
+    "import matplotlib.pyplot as plt\n",
+    "\n",
+    "class jenkins():\n",
+    "    \n",
+    "    def __init__(self, k=2, alpha=0, mu=0.1):\n",
+    "        \n",
+    "        self.k = k\n",
+    "        self.alpha = alpha\n",
+    "        self.mu = mu\n",
+    "        self.un = 0\n",
+    "        \n",
+    "    def compute(self,delta_gap,N):\n",
+    "        \n",
+    "        Ft_trial = self.alpha - self.k*delta_gap \n",
+    "        norm_Ft_trial = np.norm(Ft_trial)\n",
+    "        d = Ft_trial/norm_Ft_trial\n",
+    "        Phi = norm_Ft_trial - self.mu*N\n",
+    "        if Phi<=0:\n",
+    "            self.alpha = Ft_trial\n",
+    "            return self.alpha\n",
+    "        \n",
+    "        else:\n",
+    "            self.alpha = self.mu*N*d\n",
+    "            return self.alpha"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "u = 2*np.sin(np.linspace(0,3,2000))\n",
+    "\n",
+    "plt.plot(u)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "jen = jenkins()\n",
+    "\n",
+    "N = 35.0\n",
+    "func = lambda u : jen.compute(u,N)\n",
+    "ft = list(map(func,u))\n",
+    "plt.plot(ft)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%notebook matplotlib\n",
+    "import numpy as np\n",
+    "import matplotlib.pyplot as plt\n",
+    "\n",
+    "class jenkins():\n",
+    "    \n",
+    "    def __init__(self, k=2, alpha=0, mu=0.1):\n",
+    "        \n",
+    "        self.k = k\n",
+    "        self.alpha = alpha\n",
+    "        self.mu = mu\n",
+    "        self.un = 0\n",
+    "        \n",
+    "    def compute(self,delta_gap,N):\n",
+    "        \n",
+    "        Ft_trial = self.alpha - self.k*delta_gap \n",
+    "        norm_Ft_trial = np.linalg.norm(Ft_trial)\n",
+    "        d = Ft_trial/norm_Ft_trial\n",
+    "        Phi = norm_Ft_trial - self.mu*N\n",
+    "        if Phi<=0:\n",
+    "            self.alpha = Ft_trial\n",
+    "            return self.alpha\n",
+    "        \n",
+    "        else:\n",
+    "            self.alpha = self.mu*N*d\n",
+    "            return self.alpha"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "u = 2*np.sin(np.linspace(0,3,2000))\n",
+    "\n",
+    "plt.plot(u)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "jen = jenkins()\n",
+    "\n",
+    "N = 35.0\n",
+    "func = lambda u : jen.compute(u,N)\n",
+    "ft = list(map(func,u))\n",
+    "plt.plot(ft)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "jen = jenkins()\n",
+    "\n",
+    "N = 0.0\n",
+    "func = lambda u : jen.compute(u,N)\n",
+    "ft = list(map(func,u))\n",
+    "plt.plot(ft)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "jen = jenkins()\n",
+    "\n",
+    "N = 1000\n",
+    "func = lambda u : jen.compute(u,N)\n",
+    "ft = list(map(func,u))\n",
+    "plt.plot(ft)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%notebook matplotlib\n",
+    "import numpy as np\n",
+    "import matplotlib.pyplot as plt\n",
+    "\n",
+    "class jenkins():\n",
+    "    \n",
+    "    def __init__(self, k=2, alpha=0, mu=0.1):\n",
+    "        \n",
+    "        self.k = k\n",
+    "        self.alpha = alpha\n",
+    "        self.mu = mu\n",
+    "        self.gap_n = 0\n",
+    "        \n",
+    "    def compute(self,gap,N):\n",
+    "        \n",
+    "        delta_gap = gap - self.gap_n\n",
+    "        self.gap_n = gap\n",
+    "        Ft_trial = self.alpha - self.k*delta_gap \n",
+    "        norm_Ft_trial = np.linalg.norm(Ft_trial)\n",
+    "        d = Ft_trial/norm_Ft_trial\n",
+    "        Phi = norm_Ft_trial - self.mu*N\n",
+    "        if Phi<=0:\n",
+    "            self.alpha = Ft_trial\n",
+    "            return self.alpha\n",
+    "        \n",
+    "        else:\n",
+    "            self.alpha = self.mu*N*d\n",
+    "            return self.alpha"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "u = 2*np.sin(np.linspace(0,3,2000))\n",
+    "\n",
+    "plt.plot(u)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "jen = jenkins()\n",
+    "\n",
+    "N = 1000\n",
+    "func = lambda u : jen.compute(u,N)\n",
+    "ft = list(map(func,u))\n",
+    "plt.plot(ft)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "jen = jenkins()\n",
+    "\n",
+    "N = 100\n",
+    "func = lambda u : jen.compute(u,N)\n",
+    "ft = list(map(func,u))\n",
+    "plt.plot(ft)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "jen = jenkins()\n",
+    "\n",
+    "N = 10\n",
+    "func = lambda u : jen.compute(u,N)\n",
+    "ft = list(map(func,u))\n",
+    "plt.plot(ft)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "u = 2*np.sin(np.linspace(0,7,2000))\n",
+    "\n",
+    "plt.plot(u)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "jen = jenkins()\n",
+    "\n",
+    "N = 10\n",
+    "func = lambda u : jen.compute(u,N)\n",
+    "ft = list(map(func,u))\n",
+    "plt.plot(ft)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.plot(u,ft)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "u = 2*np.sin(np.linspace(0,14,2000))\n",
+    "\n",
+    "plt.plot(u)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "jen = jenkins()\n",
+    "\n",
+    "N = 10\n",
+    "func = lambda u : jen.compute(u,N)\n",
+    "ft = list(map(func,u))\n",
+    "plt.plot(ft)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.plot(u,ft)"
+   ]
+  }
+ ],
+ "metadata": {},
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
