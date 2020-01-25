@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import amfe
 from pyfeti import utils
+from pyfeti.src.utils import DomainCreator, dict2dfmap, create_selection_operator, DofManager
 from amfe.contact import jenkins, Nonlinear_force_assembler, Create_node2node_force_object
 import time
 import scipy.sparse as sparse
