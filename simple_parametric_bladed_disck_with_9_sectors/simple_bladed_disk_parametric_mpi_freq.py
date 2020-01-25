@@ -58,6 +58,17 @@ class Nonlinear_Force():
             return output
 
 
+def force_in_time(fext,time_points,omega):
+        
+        f_list = []
+        for i in range(time_points):
+            a = rate*np.sin(2.0*np.pi*i/time_points)
+            f1 = a*fext
+            f_list.append(f1)
+
+        return np.array(f_list).T
+
+
 def preprocessing(variables_filename = 'preprocessing_variables.pkl'):
 
     #-------------------------------------------------------------------------------------------------------------------------
@@ -124,6 +135,39 @@ def preprocessing(variables_filename = 'preprocessing_variables.pkl'):
     return locals()
 
 
+def HBM_preprocessing(**kwargs):
+
+    globals().update(kwargs)
+    print('Starting HBM pre-processing')
+
+    print('time_points = %i' %time_points)
+    rate = force_multiplier 
+    ndofs = K_global.shape[0]
+
+    force_global_in_time = force_in_time(f_global,time_points,omega)
+    time_axis = list(range(time_points))
+
+    #------------------------------------------------------------------------------------
+    # HBM operator, AFT and Nonlinear forces
+
+    Q = frequency.assemble_hbm_operator(ndofs,number_of_harm=nH ,n_points=time_points) # bases of truncaded Fourier
+    nonlinear_force_obj = Nonlinear_Force(Fnl_obj_list)
+    AFT  = operators.Nonlinear_Force_AFT(Q,nonlinear_force_obj)
+
+    force_global_ = Q.H.dot(force_global_in_time)
+    force_in_time_calc = Q.dot(force_global_)
+
+    HBM_varlist = ['Q','force_global_','AFT','force_global_in_time']
+    HBM_var_dict  = {}
+    for var_name in HBM_varlist:
+        HBM_var_dict[var_name] = eval(var_name)
+
+    utils.save_object(HBM_var_dict,HBM_variable_file)
+
+    return HBM_var_dict
+
+
+
 def main(**kwargs):
     #-------------------------------------------------------------------------------------------------------------------------
     #                                                       HBM   Simulation
@@ -135,34 +179,7 @@ def main(**kwargs):
     print('time_points = %i' %time_points)
     rate = force_multiplier 
     ndofs = K_global.shape[0]
-    def force_in_time(fext,time_points,omega):
-        
-        f_list = []
-        for i in range(time_points):
-            a = rate*np.sin(2.0*np.pi*i/time_points)
-            f1 = a*fext
-            f_list.append(f1)
-
-        return np.array(f_list).T
-
-    I_base = np.eye(f_global.shape[0])
-    I_list = [I_base]
-    I_list.extend((nH-1)*[0.*I_base])
-    I_aug = np.vstack(I_list)
-    force_global_in_time = force_in_time(f_global,time_points,omega)
-    force_mode_global_in_time = force_in_time(f_global,time_points,omega)
-    time_axis = list(range(time_points))
-
-    #------------------------------------------------------------------------------------
-    # HBM operator, AFT and Nonlinear forces
-
-    Q = frequency.assemble_hbm_operator(ndofs,number_of_harm=nH ,n_points=time_points) # bases of truncaded Fourier
-    nonlinear_force_obj = Nonlinear_Force(Fnl_obj_list)
-    AFT  = operators.Nonlinear_Force_AFT(Q,nonlinear_force_obj)
-
-    force_global_ = Q.H.dot(force_global_in_time)
-    force_mode_global_ = Q.H.dot(force_mode_global_in_time)
-    force_in_time_calc = Q.dot(force_global_)
+    
 
     Z = lambda w : frequency.create_Z_matrix(K_global,C_global,M_global,f0= w/(2.0*np.pi),nH=nH, static=False)
     Zw = Z(omega)
@@ -244,7 +261,7 @@ if __name__ == "__main__":
     #save_mesh_file = 'mesh_simple_parametric_bladed_disk_v1.pkl' 
 
     # HBM parameters 
-    nH = 2 # number of harmonics
+    nH = 1 # number of harmonics
     omega = omega0 + mpi_case*delta_omega # frequency in rad s
     time_points = nH*25
 
@@ -255,10 +272,10 @@ if __name__ == "__main__":
     nu = 0.3
 
     # Jenkins element properties
-    dimension= 3 # dimention of the problem
-    ro=1.0E5 # Normal Contact stiffness
+    dimension = 3 # dimention of the problem
+    ro=1.0E7 # Normal Contact stiffness
     N0=0.0E0 # Normal Preload
-    k= 1.0E3 # Tangent Contact Stiffness 
+    k= 1.0E5 # Tangent Contact Stiffness 
     mu= 0.3 # Friction coef 
     elem_type = 'jenkins' # type of the contact implemented in amfe.contact module
 
@@ -313,6 +330,17 @@ if __name__ == "__main__":
         var_dict[var_name] = utils.load_object(var_name + '.pkl')
 
     variables_dict.update(var_dict)
+
+    variables_dict.update({'HBM_variable_file' : 'HBM_operator.pkl'})
+    
+    try:
+        HBM_var_dict = utils.load_object(variables_dict['HBM_variable_file'],tries=1,sleep_delay=1.0)
+        if HBM_var_dict is None:
+            raise ValueError('File not found')
+    except:
+        HBM_var_dict = HBM_preprocessing(**variables_dict)
+
+    variables_dict.update(HBM_var_dict)
 
     main(**variables_dict)
         
