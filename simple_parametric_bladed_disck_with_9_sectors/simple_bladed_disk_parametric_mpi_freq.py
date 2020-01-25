@@ -39,10 +39,11 @@ class Nonlinear_Force():
             
         def compute_force(self,u,X0=None):
             Fnl_obj_list = self.Fnl_obj_list
+            output = np.zeros(u.shape[0])
             for fnl_obj_item in Fnl_obj_list:
                 try:
                     output += fnl_obj_item.compute(u,X0)
-                except:
+                except ValueError:
                     output = fnl_obj_item.compute(u,X0)
 
             return output
@@ -246,8 +247,8 @@ if __name__ == "__main__":
     from mpi4py import MPI
     comm = MPI.COMM_WORLD
 
-    omega0 = 10.0
-    delta_omega = 50.0
+    omega0 = 30.0
+    delta_omega = 80.0
     mpi_case = comm.rank
 
     logging.basicConfig(filename='multiple_freq_id_%i.log' %mpi_case,level=logging.INFO)
@@ -263,7 +264,7 @@ if __name__ == "__main__":
     # HBM parameters 
     nH = 1 # number of harmonics
     omega = omega0 + mpi_case*delta_omega # frequency in rad s
-    time_points = nH*25
+    time_points = nH*50
 
     logging.info('HBM simulation for frequency = %f [rad/s]' %omega)
     # Linear Elastic Material Properties
