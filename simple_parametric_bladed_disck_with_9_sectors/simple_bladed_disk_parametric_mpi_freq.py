@@ -145,7 +145,7 @@ def HBM_preprocessing(**kwargs):
     rate = force_multiplier 
     ndofs = K_global.shape[0]
 
-    force_global_in_time = force_in_time(f_global,time_points,omega)
+    force_global_in_time = force_in_time(f_global.real,time_points,omega)
     time_axis = list(range(time_points))
 
     #------------------------------------------------------------------------------------
@@ -180,7 +180,7 @@ def main(**kwargs):
     logging.info('time_points = %i' %time_points)
     rate = force_multiplier 
     ndofs = K_global.shape[0]
-    
+    C_global = alpha*M_global + beta*K_global
 
     Z = lambda w : frequency.create_Z_matrix(K_global,C_global,M_global,f0= w/(2.0*np.pi),nH=nH, static=False)
     Zw = Z(omega)
@@ -247,14 +247,14 @@ if __name__ == "__main__":
     from mpi4py import MPI
     comm = MPI.COMM_WORLD
 
-    omega0 = 30.0
+    omega0 = 100.0
     delta_omega = 80.0
     mpi_case = comm.rank
 
     logging.basicConfig(filename='multiple_freq_id_%i.log' %mpi_case,level=logging.INFO)
 
     # Newton Parameters
-    newton_max_int = 200
+    newton_max_int = 2
     newton_tol = 1.0E-4
 
     # Solution File to be saved
@@ -274,10 +274,10 @@ if __name__ == "__main__":
 
     # Jenkins element properties
     dimension = 3 # dimention of the problem
-    ro=1.0E7 # Normal Contact stiffness
+    ro=0.0*1.0E7 # Normal Contact stiffness
     N0=0.0E0 # Normal Preload
-    k= 1.0E5 # Tangent Contact Stiffness 
-    mu= 0.3 # Friction coef 
+    k= 0.0*1.0E5 # Tangent Contact Stiffness 
+    mu= 0.0*0.3 # Friction coef 
     elem_type = 'jenkins' # type of the contact implemented in amfe.contact module
 
     #external force paramenters and Boundary Conditions
@@ -285,7 +285,7 @@ if __name__ == "__main__":
     external_force_tag = 'NEUMANN_RIGHT_1_ELSET'
     external_force_direction = 0
     Dirichlet_tag = 'DIRICHLET_ELSET'
-    rate = 5.00E3 #
+    rate = 1.00E3 #
 
     # Mesh file 
     mesh_file_1 = os.path.join('meshes','simple_parametric_bladed_disk_9_sectors_131976_nodes_83305_elem_tet4.inp')
@@ -333,6 +333,7 @@ if __name__ == "__main__":
     variables_dict.update(var_dict)
 
     variables_dict.update({'HBM_variable_file' : 'HBM_operator.pkl'})
+    variables_dict.update( {'alpha' : 1.0E-10 , 'beta':0.0})
     
     try:
         HBM_var_dict = utils.load_object(variables_dict['HBM_variable_file'],tries=1,sleep_delay=1.0)
