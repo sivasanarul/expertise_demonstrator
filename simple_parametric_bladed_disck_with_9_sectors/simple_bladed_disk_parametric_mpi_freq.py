@@ -12,11 +12,11 @@ import numdifftools as nd
 import os
 
 def timing(f):
-    def wrap(*args):
+    def wrap(*args,**kwargs):
         time1 = time.time()
-        ret = f(*args)
+        ret = f(*args,**kwargs)
         time2 = time.time()
-        print('{:s} function took {:.3f} ms'.format(f.__name__, (time2-time1)*1000.0))
+        logging.info('{:s} function took {:.3f} ms'.format(f.__name__, (time2-time1)*1000.0))
 
         return ret
     return wrap
@@ -94,7 +94,7 @@ def preprocessing(variables_filename = 'preprocessing_variables.pkl'):
     for component_string in component_string_list:
         m.change_tag_in_eldf('phys_group',component_string,tag_domain)
 
-    print(m.get_phys_group_types())
+    logging.info(m.get_phys_group_types())
     #-------------------------------------------------------------------------------------------------------------------------
     # Defining contact pairs
     contact_pairs = {}
@@ -108,7 +108,7 @@ def preprocessing(variables_filename = 'preprocessing_variables.pkl'):
         dj = m.get_submesh('phys_group',target)
 
         contactij = amfe.contact.Contact(di,dj,tol_radius=tol_radius)
-        print('Contact (%i,%i), : Number of contact pairs = %i' %(key[0],key[1],len(contactij.contact_elem_dict)))
+        logging.info('Contact (%i,%i), : Number of contact pairs = %i' %(key[0],key[1],len(contactij.contact_elem_dict)))
         contact_dict[key] = contactij
 
 
@@ -139,9 +139,9 @@ def preprocessing(variables_filename = 'preprocessing_variables.pkl'):
 def HBM_preprocessing(**kwargs):
 
     globals().update(kwargs)
-    print('Starting HBM pre-processing')
+    logging.info('Starting HBM pre-processing')
 
-    print('time_points = %i' %time_points)
+    logging.info('time_points = %i' %time_points)
     rate = force_multiplier 
     ndofs = K_global.shape[0]
 
@@ -168,16 +168,16 @@ def HBM_preprocessing(**kwargs):
     return HBM_var_dict
 
 
-
+@timing
 def main(**kwargs):
     #-------------------------------------------------------------------------------------------------------------------------
     #                                                       HBM   Simulation
     #-------------------------------------------------------------------------------------------------------------------------
     globals().update(kwargs)
-    print('Starting HBM simulation')
+    logging.info('Starting HBM simulation')
     #-----------------------------------------------------------------------------------
     #HBM setup
-    print('time_points = %i' %time_points)
+    logging.info('time_points = %i' %time_points)
     rate = force_multiplier 
     ndofs = K_global.shape[0]
     
@@ -285,7 +285,7 @@ if __name__ == "__main__":
     external_force_tag = 'NEUMANN_RIGHT_1_ELSET'
     external_force_direction = 0
     Dirichlet_tag = 'DIRICHLET_ELSET'
-    rate = 5.00E2 #
+    rate = 5.00E3 #
 
     # Mesh file 
     mesh_file_1 = os.path.join('meshes','simple_parametric_bladed_disk_9_sectors_131976_nodes_83305_elem_tet4.inp')
