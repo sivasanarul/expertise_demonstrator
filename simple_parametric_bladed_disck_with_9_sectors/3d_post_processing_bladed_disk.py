@@ -11,12 +11,12 @@ from contpy import optimize as copt, frequency
 import numdifftools as nd
 import os
 
-results_folder = '/home/mlid150/Documents/demo_salomon/case1'
+results_folder = '/home/mlid150/Documents/demo_salomon/nonlinear_case3'
+mpi_case = 99
 filename_map = lambda mpi_case : os.path.join(results_folder,'simple_parametric_bladed_disk_freq_id_%i.pkl' %mpi_case)
 
 
 #solution_file = 'simple_parametric_bladed_disk_v8.pkl'
-mpi_case = 15
 solution_file =  filename_map(mpi_case)
 mesh_dict_file = 'mesh_simple_parametric_bladed_disk_v1.pkl'
 
@@ -211,7 +211,7 @@ def save_animation(version_id=2):
     # Set up formatting for the movie files
     Writer =animation.writers['imagemagick']
     writer = Writer(fps=10, metadata=dict(artist='Me'), bitrate=1000)
-    str_res_fig = 'simple_parametric_bladed_disk_9_sectors_mpi_case_%i' %version_id
+    str_res_fig = 'simple_parametric_bladed_disk_9_sectors_nonlinear_case3_mpi_case_%i' %version_id
     git_name = str_res_fig + '.gif'
     ani.save( git_name , writer=writer, dpi = 100 )
 

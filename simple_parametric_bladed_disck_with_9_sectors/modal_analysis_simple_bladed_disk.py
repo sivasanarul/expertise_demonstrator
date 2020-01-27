@@ -14,13 +14,16 @@ import os
 K_global = utils.load_object('K_global.pkl')
 M_global = utils.load_object('M_global.pkl')
 
-
+print('Dfos = %i' %K_global.shape[0])
 K_global_inv = sparse.linalg.splu(K_global)
 
 D = sparse.linalg.LinearOperator(shape= K_global.shape, matvec = lambda x : K_global_inv.solve(M_global.dot(x)))
 
-num_modes = 10
+
+num_modes = 20
 val, Phi = sparse.linalg.eigs(D,k=num_modes)
+#val, Phi = sparse.linalg.eigs(K_global, k=num_modes, M=M_global, which='SM')
+
 
 omega = np.sqrt(1./val)
 freq = omega/(2.0*np.pi)
@@ -28,7 +31,7 @@ freq = omega/(2.0*np.pi)
 print(freq)
 
 
-save_modal_force = True:
+save_modal_force = False
 if save_modal_force:
     modal_participation = 1./num_modes
     f  = np.sum(Phi,axis=1)

@@ -12,7 +12,7 @@ import numdifftools as nd
 import os
 
 
-results_folder = '/home/mlid150/Documents/demo_salomon/case2'
+results_folder = '/home/mlid150/Documents/demo_salomon/nonlinear_case3'
 filename_map = lambda mpi_case : os.path.join(results_folder,'simple_parametric_bladed_disk_freq_id_%i.pkl' %mpi_case)
 
 max_mpi = 120
@@ -22,7 +22,7 @@ delta_omega = 80.0
 
 def get_case(mpi_case):
     omega = omega0 + mpi_case*delta_omega # frequency in rad s
-    case_dict = utils.load_object(filename_map(mpi_case),tries=1,sleep_delay=1)
+    case_dict = utils.load_object(filename_map(mpi_case),tries=1,sleep_delay=0.001)
     return case_dict, omega
 
 
@@ -38,14 +38,18 @@ for mpi_case in range(max_mpi):
         u_max_list.extend([u_sol.max()])
         u_sol_list.append(u_sol)
         omega_list.extend([omega])
-
+        print("Mpi case = %i, omega = %f" %(mpi_case,omega))
+ 
 U_array = np.array(u_sol_list)
-plt.plot(omega_list,U_array[:,100],'o')
+plt.plot(omega_list,np.abs(U_array[:,100]),'--o')
 plt.show()
 
+U_array = np.array(u_sol_list)
+plt.plot(omega_list,np.abs(U_array[:,1000]),'--o')
+plt.show()
 
 U_array = np.array(u_sol_list)
-plt.plot(omega_list,u_max_list,'o')
+plt.plot(omega_list,np.abs(u_max_list),'--o')
 plt.show()
 
 x=1
