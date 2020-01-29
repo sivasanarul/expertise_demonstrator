@@ -12,7 +12,7 @@ import numdifftools as nd
 import os
 
 
-results_folder = '/home/mlid150/Documents/demo_salomon/nonlinear_case3'
+results_folder = '/home/mlid150/Documents/demo_salomon/nonlinear_case4'
 filename_map = lambda mpi_case : os.path.join(results_folder,'simple_parametric_bladed_disk_freq_id_%i.pkl' %mpi_case)
 
 max_mpi = 120
