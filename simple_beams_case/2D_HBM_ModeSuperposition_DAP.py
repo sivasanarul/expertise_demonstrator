@@ -1,4 +1,3 @@
-# get_ipython().run_line_magic('matplotlib', 'notebook')
 import numpy as np
 import matplotlib.pyplot as plt
 import amfe
@@ -96,10 +95,10 @@ component_dict = {1: {'mesh': m1,
                       'material': my_material_template}}
 
 # ro=1.0E7
-ro = 1.0E4
-N0 = 1E3
-k = 1.0E4
-mu = 0.3
+ro=1.0E4
+N0=1E3
+k= 1.0E4
+mu= 0.3
 contact_dict = {'12': {'contact': contact12,
                        'contact_pair_id': (1, 2),
                        'elem_type': 'jenkins',
@@ -390,9 +389,65 @@ class LM_Krylov(copt.LinearSolver):
             self.x0 = xn
         # self.maxiter += 2
 
+class gmres_counter(object):
+    def __init__(self, disp=True):
+        self._disp = disp
+        self.niter = 0
+    def __call__(self, rk=None):
+        self.niter += 1
+
+
+class LM_Krylov_DAP(copt.LinearSolver,gmres_counter):
+    def __init__(self, x0, tol=1.0E-6, maxiter=50, verbose=False):
+        self.tol = tol
+        self.maxiter = maxiter
+        self.verbose = verbose
+        self.x0 = x0
+        self._counter = 0
+        self.max_reuse_precond = 10
+        self.M = None
+        self.info = 0
+        self.number_of_updates = 0
+        self.iteration_limit = 15
+        self.update_prec = True
+        self.number_of_iterations = []
+        self.number_of_call = 0
+        super().__init__(**self.__dict__)
+
+    def solve(self, A, b):
+        self.number_of_call += 1
+        if self.update_prec:
+            LU = sparse.linalg.splu(A)
+            self.M = sparse.linalg.LinearOperator(shape=A.shape, matvec=lambda x: LU.solve(x))
+            self.number_of_updates += 1
+
+        counter = gmres_counter()
+        x, self.info = sparse.linalg.gmres(A, b, x0=self.x0, tol=self.tol, maxiter=self.maxiter, M=self.M, callback=counter)
+        self.number_of_iterations.append(counter.niter)
+
+        if self.verbose:
+            print('GMRes info - %i' % self.info)
+
+        if self.info != 0:
+            self.update_prec = True
+            x = self.solve(A, b)
+
+        elif counter.niter > 15:
+            self.update_prec = True
+
+        else:
+            self.update_prec = False
+
+
+        return x
+
+    def update(self, xn):
+        if self.info == 0:
+            self.x0 = xn
+        # self.maxiter += 2
 
 class LM_CG_Krylov(copt.LinearSolver):
-    def __init__(self, x0, tol=1.0E-6, maxiter=50, verbose=False):
+    def __init__(self, x0, tol=1.0E-10, maxiter=50, verbose=False):
         self.tol = tol
         self.maxiter = maxiter
         self.verbose = verbose
@@ -432,12 +487,11 @@ class LM_CG_Krylov(copt.LinearSolver):
             self.x0 = xn
         # self.maxiter += 2
 
-
 # In[ ]:
-
+LO_method = LM_Krylov_DAP(0.0 * u__inital_real, tol=1.0E-6, maxiter=50, verbose=False)
 # solving the system without any reduction
-sol2 = copt.LevenbergMarquardt(Residual_and_Jac_in_real_block,0.0*u__inital_real,method=None,jac=True,maxiter=200)
-#sol2 = copt.Newton(Residual_and_Jac_in_real_block, 0.0 * u__inital_real, method=None, jac=True, maxiter=200)
+sol2 = copt.LevenbergMarquardt(Residual_and_Jac_in_real_block,0.0*u__inital_real,method=None,jac=True,maxiter=20,linear_solver=LO_method)
+#sol2 = copt.Newton(Residual_and_Jac_in_real_block, 0.0 * u__inital_real,linear_solver= LO_method, method=None, jac=True, maxiter=200)
 u_sol = copt.real_array_to_complex(sol2.x)
 u_sol_time = Q.dot(u_sol)
 
@@ -472,114 +526,9 @@ def update_HBM(j, factor=6.0):
 # update(10)
 anim1 = animation.FuncAnimation(fig2, update_HBM,
                                 frames=range(time_points), interval=1)
-plt.show()
+#plt.show()
 
-# select the modal basis
-n_modes = 20
-V_ = Phi[:, 0:n_modes]
-# [V_]*nH
-V = sparse.block_diag(([V_] * nH))
+print("Number of linear solver call : %d" %(LO_method.number_of_call))
+print("Number of inv updates : %d" %(LO_method.number_of_updates))
 
-Zw_mode = V.T @ Zw @ V
-Zw_mode_real = copt.complex_matrix_to_real_block(Zw_mode)
-
-
-def Residual_and_Jac_mode(q_real):
-    q_complex = copt.real_array_to_complex(q_real)
-    u_ = V.dot(q_complex)
-    fnl_complex_eval, Jnl_eval_1, Jnl_eval_conj_1 = AFT.compute_force_and_jac(u_)
-    J_block_real = copt.complex_matrix_to_real_block(V.T @ Jnl_eval_1 @ V, V.T @ Jnl_eval_conj_1 @ V)
-    J = Zw_mode_real - J_block_real
-    R = Zw.dot(u_) - force_global_ - fnl_complex_eval
-    VTR = V.T.dot(R)
-    R_real = copt.complex_array_to_real(VTR)
-    return R_real, J
-
-
-q_complex_1 = V.T.dot(u_sol)
-# q_complex_1 = np.linalg.solve(Zw_mode,V.T@force_global_)
-# q_complex = V.T.dot(u__initial)
-q_real_init_1 = copt.complex_array_to_real(q_complex_1)
-# q_real_init_2 = copt.complex_array_to_real(q_complex_2 )
-sol2_q = copt.LevenbergMarquardt(Residual_and_Jac_mode, q_real_init_1, method=None, jac=True, maxiter=200, tol=1.E-8)
-
-# u = Vq
-q_sol_complex = copt.real_array_to_complex(sol2_q.x)
-u_sol_mode = V.dot(q_sol_complex)
-u_sol_time_ = Q.dot(u_sol_mode)
-print('no. of iterations for sol2_q %i' % sol2_q.nfev)
-
-from matplotlib import animation, rc
-
-u_list_ = SO.LinearOperator(u_sol_time_)
-fig3, ax3 = plt.subplots(1, 1)
-
-mesh_list = [m1, m2]
-factor = 6.0
-
-
-def update_HBM_modes(j, factor=6.0):
-    i = 0
-    ax3.clear()
-    for key, mesh_dict_ in component_dict.items():
-        me = mesh_dict_['mesh']
-        # me = mesh_list[i]
-        p1, _ = amfe.plotDeformQuadMesh(me.connectivity, me.nodes, u_list_[i].T[j], factor=factor, ax=ax3, color_id=3)
-        i += 1
-
-    ax3.set_xlim([0, 2.2 * width])
-    ax3.set_ylim([-1.1 * width, 1.1 * width])
-    ax3.legend('off')
-    ax3.set_title('Deformed mesh for modal superposition with modes = %i ' % n_modes)
-
-
-# update(10)
-anim2 = animation.FuncAnimation(fig3, update_HBM_modes, frames=range(time_points), interval=20)
-
-# In[ ]:
-
-
-fig4, (ax41, ax42) = plt.subplots(1, 2, figsize=(6, 6))
-ax41.plot(u_sol.real, u_sol_mode.real, 'o')
-ax42.set_title('imag part correlation')
-
-ax42.plot(u_sol.imag, u_sol_mode.imag, '*')
-ax41.set_title('real part correlation')
-
-plt.show()
-
-# In[ ]:
-
-
-u_sol_mode_real = copt.complex_array_to_real(u_sol_mode)
-sol2 = copt.Newton(Residual_and_Jac_in_real_block, u_sol_mode_real, method=None, jac=True, maxiter=200)
-u_sol = copt.real_array_to_complex(sol2.x)
-u_sol_time__ = Q.dot(u_sol)
-
-print('no. of iterations for sol2 with better guess %i' % sol2.nfev)
-
-u_list_ = SO.LinearOperator(u_sol_time__)
-fig3, ax3 = plt.subplots(1, 1)
-
-mesh_list = [m1, m2]
-factor = 6.0
-
-
-def update_HBM_guess(j, factor=6.0):
-    i = 0
-    ax3.clear()
-    for key, mesh_dict_ in component_dict.items():
-        me = mesh_dict_['mesh']
-        # me = mesh_list[i]
-        p1, _ = amfe.plotDeformQuadMesh(me.connectivity, me.nodes, u_list_[i].T[j], factor=factor, ax=ax3, color_id=3)
-        i += 1
-
-    ax3.set_xlim([0, 2.2 * width])
-    ax3.set_ylim([-1.1 * width, 1.1 * width])
-    ax3.legend('off')
-    ax3.set_title('Deformed mesh for modal superposition as initial guess = %i ' % n_modes)
-
-
-# update(10)
-anim3 = animation.FuncAnimation(fig3, update_HBM_guess, frames=range(time_points), interval=20)
-plt.show()
+print("all is well")
